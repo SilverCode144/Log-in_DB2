@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="card">
+    <h1>Dashboard</h1>
+    <p id="welcome" class="subtitle">Loading profile...</p>
+    <button id="logout">Logout</button>
+  </main>
+
+  <script>
+    // Configuration: Replace with your Render URL when deployed
+    const API_URL = "https://login-system-97ea.onrender.com";
+    // const API_URL = "http://localhost:5000";
+    const token = localStorage.getItem("token");
+
+    // Redirect to login if unauthenticated
+    if (!token) {
+      window.location.href = "index.html";
+    }
+
+    // Fetch protected profile data from backend
+    fetch(`${API_URL}/api/profile`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    .then(response => {
+      if (!response.ok) throw new Error("Invalid or expired session");
+      return response.json();
+    })
+    .then(data => {
+      document.getElementById("welcome").textContent =
+        `Welcome, ${data.user.name} (${data.user.email})`;
+    })
+    .catch(() => {
+      localStorage.removeItem("token");
+      window.location.href = "index.html";
+    });
+
+    // Logout handler
+    document.getElementById("logout").addEventListener("click", () => {
+      localStorage.removeItem("token");
+      window.location.href = "index.html";
+    });
+  </script>
+</body>
+</html>
